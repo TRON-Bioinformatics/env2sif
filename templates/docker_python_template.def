@@ -1,0 +1,10 @@
+Bootstrap: docker
+From: {docker_name}
+
+%test
+  echo "SYSTEM INFORMATION:"
+  cat /etc/os-release
+  echo "PYTHON VERSION:"
+  python --version
+  echo "PIP VERSION:"
+  pip --version

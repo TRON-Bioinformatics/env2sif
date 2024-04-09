@@ -1,0 +1,21 @@
+Bootstrap: docker
+From: {docker_name}
+
+%files
+  {micromamba_path} /usr/bin/micromamba
+
+%post
+  export PATH="/usr/bin:$PATH"
+  micromamba config append channels conda-forge
+  micromamba config append channels bioconda
+  micromamba config append channels defaults
+  micromamba config set channel_priority strict
+  echo 'eval "$('micromamba shell hook -s posix')"' >>$SINGULARITY_ENVIRONMENT
+  echo "micromamba activate" >>$SINGULARITY_ENVIRONMENT
+
+%test
+  echo "SYSTEM INFORMATION:"
+  cat /etc/os-release
+  echo "MICROMAMBA VERSION:"
+  micromamba --version
+  micromamba config list --sources

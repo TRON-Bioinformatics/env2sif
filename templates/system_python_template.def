@@ -1,0 +1,41 @@
+Bootstrap: docker
+From: {docker_name}
+
+%post
+  apt -y update && apt -y upgrade
+  if [ {libreadline_support} = "Supported" ]; then
+  	apt -y install wget build-essential libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev
+  elif [ {libreadline_support} = "None" ]; then
+  	apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget
+  fi
+  
+  wget https://www.python.org/ftp/python/{python_version}/Python-{python_version}.tgz
+  tar xzf Python-{python_version}.tgz
+  cd Python-{python_version}
+  ./configure --enable-optimizations --with-ensurepip=install
+  make altinstall
+  ln -s $(find /usr/local/bin -regextype posix-egrep -regex '.*(python[0-9]+\.?[0-9]*)$') /usr/local/bin/python
+  rm -rf Python-{python_version}.tgz
+  rm -rf Python-{python_version}
+
+  if [ {python_pip_version_status} = "pip" ]; then
+  	ln -s $(find /usr/local/bin -regextype posix-egrep -regex '.*(pip[0-9]+\.?[0-9]*)$') /usr/local/bin/pip
+  elif [ {python_pip_version_status} = "no_pip" ]; then
+	#work in progress
+  	apt-get update -y && apt-get upgrade -y
+	apt-get install software-properties-common -y
+   	apt-get install python{python_pip_version}-venv -y
+  	python -m ensurepip --upgrade
+  fi
+
+  #pip install --upgrade pip
+
+%test
+  echo "SYSTEM INFORMATION:"
+  cat /etc/os-release
+  echo "PYTHON VERSION:"
+  python --version
+  echo "PIP VERSION:"
+  pip --version
+
+

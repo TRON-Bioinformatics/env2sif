@@ -1,0 +1,36 @@
+Bootstrap: docker
+From: {docker_name}
+
+%post
+  apt-get update -y && apt-get upgrade -y
+  apt-get install software-properties-common -y
+  add-apt-repository ppa:deadsnakes/ppa
+  
+  if [ {py2_or_py3} = "3" ] && [ {py3_version} = "old" ]; then
+    apt-get install python{python_version} wget python{py2_or_py3}-distutils -y
+  elif [ {py2_or_py3} = "3" ] && [ {py3_version} = "new" ]; then
+    apt-get install python{python_version} wget python{python_version}-distutils python{python_version}-venv -y
+  elif [ {py2_or_py3} = "2" ]; then
+    apt-get install python{python_version} wget -y
+  fi
+
+  ln -s /usr/bin/python{python_version} /usr/bin/python
+
+  if [ {python_pip_version_status} = "new" ]; then
+    wget https://bootstrap.pypa.io/get-pip.py
+    python get-pip.py
+  elif [ {python_pip_version_status} = "old" ]; then
+    wget https://bootstrap.pypa.io/pip/{python_version}/get-pip.py
+    python get-pip.py
+  fi
+
+  pip install --upgrade pip
+
+
+%test
+  echo "SYSTEM INFORMATION:"
+  cat /etc/os-release
+  echo "PYTHON VERSION:"
+  python --version
+  echo "PIP VERSION:"
+  pip --version

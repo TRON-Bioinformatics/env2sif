@@ -1,0 +1,46 @@
+Bootstrap: localimage
+From: {system_image}
+
+%files
+    {env_input} /environment.yml
+
+
+
+%post
+    if [ {conda_or_py} = "conda" ]; then
+        micromamba install -y -n base -f /environment.yml
+        micromamba clean --all --yes
+        echo 'eval "$('micromamba shell hook -s posix')"' >>$SINGULARITY_ENVIRONMENT
+        echo "micromamba activate base" >>$SINGULARITY_ENVIRONMENT
+    
+    elif [ {conda_or_py} = "python" ]; then
+        if [ {py2_or_py3} = "3" ] && [ {py3_version} = "new" ]; then
+            python -m venv venv
+        else
+            python -m pip install virtualenv
+            python -m virtualenv venv
+        fi
+        
+        . /venv/bin/activate
+        echo ". /venv/bin/activate" >>$SINGULARITY_ENVIRONMENT
+        pip install -r /environment.yml --no-cache-dir
+    fi
+
+
+%test
+    echo "\nSYSTEM INFORMATION:"
+    cat /etc/os-release
+    
+    if [ {conda_or_py} = "conda" ]; then
+        echo "MICROMAMBA VERSION:"
+        micromamba --version
+        echo "INSTALLED CONDA PACKAGES:"
+        micromamba list
+    elif [ {conda_or_py} = "python" ]; then
+        echo "PYTHON VERSION:"
+        python --version
+        echo "PIP VERSION:"
+        pip --version
+        echo "INSTALLED PYTHON PACKAGES:"
+        pip freeze
+    fi

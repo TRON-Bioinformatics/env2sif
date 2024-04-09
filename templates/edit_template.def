@@ -1,0 +1,28 @@
+Bootstrap: localimage
+From: {input_image}
+
+%files
+    {env_input} /edit_environment.yml
+
+%post
+    if [ {conda_or_py} = "conda" ] && [ {edit} = "add" ] && [ {file_or_list} = "file" ]; then
+        micromamba update -n base -f /edit_environment.yml --prune
+        micromamba clean --all --yes
+
+    elif [ {conda_or_py} = "conda" ] && [ {edit} = "add" ] && [ {file_or_list} = "list" ]; then
+        micromamba install -y {packages}
+        micromamba clean --all --yes
+
+    elif [ {conda_or_py} = "conda" ] && [ {edit} = "delete" ]; then
+        micromamba remove -y {packages}
+    
+    elif [ {conda_or_py} = "python" ] && [ {edit} = "add" ] && [ {file_or_list} = "file" ]; then
+        pip install -r /edit_environment.yml --no-cache-dir
+    
+    elif [ {conda_or_py} = "python" ] && [ {edit} = "add" ] && [ {file_or_list} = "list" ]; then
+        pip install {packages} --no-cache-dir
+
+    elif [ {conda_or_py} = "python" ] && [ {edit} = "delete" ]; then
+        pip uninstall -y {packages}
+
+    fi

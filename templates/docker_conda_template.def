@@ -1,0 +1,14 @@
+Bootstrap: docker
+From: {docker_name}
+
+%post
+  micromamba config append channels conda-forge
+  micromamba config append channels bioconda
+  micromamba config append channels defaults
+  micromamba config set channel_priority strict
+
+%test
+  echo "SYSTEM INFORMATION:"
+  cat /etc/os-release
+  echo "MICROMAMBA VERSION:"
+  micromamba --version

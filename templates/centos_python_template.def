@@ -1,0 +1,32 @@
+Bootstrap: docker
+From: {docker_name}
+
+%post
+  if [ {system_version} = "8" ]; then
+    yum install gcc openssl-devel bzip2-devel libffi-devel -y
+    cd /etc/yum.repos.d/
+    sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+    #yum update -y
+    yum install gcc openssl-devel bzip2-devel libffi-devel zlib-devel make -y
+  else
+    yum install gcc openssl-devel bzip2-devel libffi-devel make -y
+  fi
+  
+  curl https://www.python.org/ftp/python/{python_version}/Python-{python_version}.tgz --output Python-{python_version}.tgz
+  tar xzf Python-{python_version}.tgz
+  cd Python-{python_version}
+  ./configure --enable-optimizations
+  make altinstall
+  ln -s $(find /usr/local/bin -regextype posix-egrep -regex '.*(python[0-9]+\.?[0-9]*)$') /usr/local/bin/python
+  ln -s $(find /usr/local/bin -regextype posix-egrep -regex '.*(pip[0-9]+\.?[0-9]*)$') /usr/local/bin/pip
+  rm -rf Python-{python_version}.tgz
+  rm -rf Python-{python_version}
+
+%test
+  echo "SYSTEM INFORMATION:"
+  cat /etc/os-release
+  echo "PYTHON VERSION:"
+  python --version
+  echo "PIP VERSION:"
+  pip --version
