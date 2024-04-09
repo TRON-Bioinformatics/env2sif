@@ -1,6 +1,6 @@
 # env2sif
 
-![GitHub tag (latest SemVer)](https://img.shields.io/github/v/release/tron-bioinformatics/env2sif?sort=semver)
+[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/tron-bioinformatics/env2sif)](https://github.com/TRON-Bioinformatics/env2sif/releases)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://opensource.org/licenses/MIT)
 
 
